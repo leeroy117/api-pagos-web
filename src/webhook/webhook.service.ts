@@ -92,28 +92,42 @@ export class WebhookService {
             await queryRunner.connect();
             await queryRunner.startTransaction();
 
-            const newTransaction = queryRunner.manager.update(PagoPasarela, idTransaction, {
-                status: data.transaction.status,
-                fechaActualizacion: data.transaction.operation_date,
-            });
+            const transactionObj = await queryRunner.manager.findOneBy(PagoPasarela, {
+                idTransaction: idTransaction,
+            })
+            console.log("🚀 ~ WebhookService ~ receiveWebhook ~ transactionObj:", transactionObj)
 
-            const transactionInfo = await queryRunner.manager.find(PagoPasarela, {
-                where: {
-                    idTransaction: idTransaction,
-                }
-            });
-
-            if(transactionInfo.length == 0){
+            if(transactionObj == null){
                 throw new NotFoundException('No se encontro el id de la transacción.');
             }
 
-            console.log("🚀 ~ WebhookService ~ receiveWebhook ~ transactionInfo:", transactionInfo)
+            const dateCDMX = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
+
+            transactionObj.status = data.transaction.status;
+            transactionObj.fechaActualizacion = dateCDMX;
+
+            await queryRunner.manager.save(PagoPasarela, transactionObj);
+
+            // const newTransaction = queryRunner.manager.update(PagoPasarela, , {
+            //     status: data.transaction.status,
+            //     fechaActualizacion: data.transaction.operation_date,
+            // });
+
+            // const transactionInfo = await queryRunner.manager.find(PagoPasarela, {
+            //     where: {
+            //         idTransaction: idTransaction,
+            //     }
+            // });
+
+           
+
+            // console.log("🚀 ~ WebhookService ~ receiveWebhook ~ transactionInfo:", transactionInfo)
 
             const newPaymentAG = queryRunner.manager.create(Pago, {
-                idAlumno: transactionInfo[0].idAlumno,
+                idAlumno: transactionObj.idAlumno,
                 monto: data.transaction.amount,
                 fechaRegistro: data.transaction.operation_date,
-                idServicio: transactionInfo[0].idServicio,
+                idServicio: transactionObj.idServicio,
                 estatus: 1,
                 deuda: 0,
                 // Pago por plataforma es 5

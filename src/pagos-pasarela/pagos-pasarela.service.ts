@@ -49,6 +49,7 @@ export class PagosPasarelaService {
                 await queryRunner.startTransaction();
 
                 const newTransaction = queryRunner.manager.create(PagoPasarela, {
+                    idAlumno: pago.info_alumno.id_alumno,
                     idMoodleAlumno: pago.info_alumno.idmoodle_alumno,
                     idPlanEstudio: pago.info_alumno.id_plan_estudio,
                     idMoodleMateria: pago.info_alumno.id_moodle_materia || null,
@@ -109,6 +110,7 @@ export class PagosPasarelaService {
                 await queryRunner.startTransaction();
 
                 const newTransaction = queryRunner.manager.create(PagoPasarela, {
+                    idAlumno: pago.info_alumno.id_alumno,
                     idMoodleAlumno: pago.info_alumno.idmoodle_alumno,
                     idPlanEstudio: pago.info_alumno.id_plan_estudio,
                     idMoodleMateria: pago.info_alumno.id_moodle_materia || null,
@@ -125,7 +127,11 @@ export class PagosPasarelaService {
                 const saveTransactionResponse = await queryRunner.manager.save(PagoPasarela, newTransaction);
                 
                 await queryRunner.commitTransaction();
-                return saveTransactionResponse;
+                /**
+                 * Se retorna la respuesta de open pay por que contiene el Link que tiene los datos para hacer 
+                 * la transaccion
+                 */
+                return transactionResponse;
             }catch(error) {
                 await queryRunner.rollbackTransaction();
                 throw error;
@@ -142,7 +148,45 @@ export class PagosPasarelaService {
         // this.openPayService.charges.create(chargeRequest, callback);
         const transactionResponse: ITransactionOpenPayBank = await this.openPayService.createCharge(createPago);
         console.log("🚀 ~ PagosPasarelaService ~ registrarPagoCash ~ transactionResponse:", transactionResponse);
-        return transactionResponse;
+
+        // Guardamos la transaccion en la db de escoalar
+        const queryRunner = this.dataSource.createQueryRunner();
+
+            try {
+                await queryRunner.connect();
+                await queryRunner.startTransaction();
+
+                const newTransaction = queryRunner.manager.create(PagoPasarela, {
+                    idAlumno: pago.info_alumno.id_alumno,
+                    idMoodleAlumno: pago.info_alumno.idmoodle_alumno,
+                    idPlanEstudio: pago.info_alumno.id_plan_estudio,
+                    idMoodleMateria: pago.info_alumno.id_moodle_materia || null,
+                    idServicio: pago.info_alumno.servicio.id,
+                    authorization: transactionResponse.authorization,
+                    typePayment: transactionResponse.method,
+                    monto: transactionResponse.amount,
+                    orderId: transactionResponse.order_id,
+                    token: null, // token sera null en cash y bank
+                    fechaRegistro: transactionResponse.operation_date,
+                    status: transactionResponse.status,
+                    idTransaction: transactionResponse.id,
+                });
+                const saveTransactionResponse = await queryRunner.manager.save(PagoPasarela, newTransaction);
+                
+                await queryRunner.commitTransaction();
+                /**
+                 * Se retorna la respuesta de open pay por que contiene el Link que tiene los datos para hacer 
+                 * la transaccion
+                 */
+                return transactionResponse;
+            }catch(error) {
+                await queryRunner.rollbackTransaction();
+                throw error;
+            } finally {
+                await queryRunner.release();
+            }
+
+        // return transactionResponse;
     }
 
     

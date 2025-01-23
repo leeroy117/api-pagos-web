@@ -7,6 +7,9 @@ export class PagoPasarela  {
   @PrimaryGeneratedColumn()   // Define una columna como clave primaria autoincrementada
   id: number;
 
+  @Column({name: 'id_alumno'})  // Define una columna llamada "idmoodleAlumno"
+  idAlumno: number;
+
   @Column({name: 'idmoodle_alumno'})  // Define una columna llamada "idmoodleAlumno"
   idMoodleAlumno: number;
 

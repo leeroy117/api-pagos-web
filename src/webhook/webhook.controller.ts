@@ -22,6 +22,7 @@ export class WebhookController {
     paynetResponse(@Req() request: Request) {
         console.log("🚀 ~ WebhookController ~ paynetResponse ~ request:", request)
         console.log('body',request.body);
+        this.serviceWebHook.receiveWebhook(request.body);
         return "ok";
     }
 

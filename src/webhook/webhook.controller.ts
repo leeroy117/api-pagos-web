@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
 import { WebhookService } from './webhook.service';
 import { Request } from 'express';
 
@@ -16,5 +16,14 @@ export class WebhookController {
     @Post('receive')
     paynetResponse(@Req() request: Request) {
         console.log("🚀 ~ WebhookController ~ paynetResponse ~ request:", request)
+        console.log('body',request.body);
+    }
+
+    @Delete(':id')
+    async deleteWebHook(@Param('id') id: string) {
+        console.log("🚀 ~ WebhookController ~ deleteWebHook ~ id:", id)
+       
+        const response = await this.serviceWebHook.deleteWebHook(id);
+        return response;
     }
 }

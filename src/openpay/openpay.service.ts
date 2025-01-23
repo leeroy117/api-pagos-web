@@ -53,4 +53,17 @@ export class OpenpayService {
       });
     }
 
+    async deleteWebHook(webhookId: string): Promise<any> {
+      return new Promise((resolve, reject) => {
+        this.openpay.webhooks.delete(webhookId, (error) => {
+          if (error) {
+            console.error('Error al eliminar el webhook:', error);
+            return reject(error);
+          }
+          console.log('Webhook eliminado correctamente:', webhookId);
+          resolve(webhookId);
+        }); 
+      });
+    }
+
 }

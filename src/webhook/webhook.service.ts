@@ -12,11 +12,20 @@ export class WebhookService {
     async createWebhookPaynet() {
 
         const webhook: ICreateWebHook = {
-            url: 'https://www.google.com.mx',
+            url: 'https://api-pagos-web-ag-5c0295b9da40.herokuapp.com/webhook/receive',
             'user' : 'dt_pagos@academiaglobal.mx',
             'password' : 'fZK9+dFv)Uc5.',
             event_types: [
-
+                'charge.created',
+                'charge.refunded',
+                'charge.failed',
+                'charge.cancelled',
+                'charge.created',
+                'chargeback.accepted',
+                'payout.created',
+                'payout.succeeded',
+                'payout.failed',
+                'spei.received',
             ]
         }
 
@@ -26,6 +35,13 @@ export class WebhookService {
 
         return response;
     }
+
+    async deleteWebHook(webHookId: string) {
+        const response = await this.openPayService.deleteWebHook(webHookId);
+        console.log("🚀 ~ WebhookService ~ deleteWebHook ~ response:", response)
+        return response;
+    }
+    
 
     
 }

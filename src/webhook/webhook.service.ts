@@ -80,14 +80,8 @@ export class WebhookService {
     async receiveWebhook(data: IChargeOpenPayWebHook ){
         const idTransaction = data.transaction.id;
 
-        
-        // if(data.type !== 'charge.succeeded'){
-        //     return "ok"
-        // }
-
         // Aquí se podría hacer una llamada a la API para actualizar el estado del pago
         const queryRunner = this.dataSource.createQueryRunner();
-        
         try {
             await queryRunner.connect();
             await queryRunner.startTransaction();
@@ -101,27 +95,12 @@ export class WebhookService {
                 throw new NotFoundException('No se encontro el id de la transacción.');
             }
 
-            const dateCDMX = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
+            // const dateCDMX = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
 
             transactionObj.status = data.transaction.status;
-            transactionObj.fechaActualizacion = dateCDMX;
+            transactionObj.fechaActualizacion = data.transaction.operation_date;
 
             await queryRunner.manager.save(PagoPasarela, transactionObj);
-
-            // const newTransaction = queryRunner.manager.update(PagoPasarela, , {
-            //     status: data.transaction.status,
-            //     fechaActualizacion: data.transaction.operation_date,
-            // });
-
-            // const transactionInfo = await queryRunner.manager.find(PagoPasarela, {
-            //     where: {
-            //         idTransaction: idTransaction,
-            //     }
-            // });
-
-           
-
-            // console.log("🚀 ~ WebhookService ~ receiveWebhook ~ transactionInfo:", transactionInfo)
 
             const newPaymentAG = queryRunner.manager.create(Pago, {
                 idAlumno: transactionObj.idAlumno,

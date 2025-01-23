@@ -95,17 +95,17 @@ export class WebhookService {
                 throw new NotFoundException('No se encontro el id de la transacción.');
             }
 
-            // const dateCDMX = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
+            const dateCDMX = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
 
             transactionObj.status = data.transaction.status;
-            transactionObj.fechaActualizacion = data.transaction.operation_date;
+            transactionObj.fechaActualizacion = dateCDMX;
 
             await queryRunner.manager.save(PagoPasarela, transactionObj);
 
             const newPaymentAG = queryRunner.manager.create(Pago, {
                 idAlumno: transactionObj.idAlumno,
                 monto: data.transaction.amount,
-                fechaRegistro: data.transaction.operation_date,
+                fechaRegistro: dateCDMX,
                 idServicio: transactionObj.idServicio,
                 estatus: 1,
                 deuda: 0,

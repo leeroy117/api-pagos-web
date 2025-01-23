@@ -9,14 +9,20 @@ export class WebhookController {
     }
 
     @Get()
+    getAllWebhooks() {
+        return this.serviceWebHook.getAllWebHooks();
+    }
+
+    @Post()
     createWebhookPaynet() {
-        this.serviceWebHook.createWebhookPaynet();
+        return this.serviceWebHook.createWebhookPaynet();
     }
 
     @Post('receive')
     paynetResponse(@Req() request: Request) {
         console.log("🚀 ~ WebhookController ~ paynetResponse ~ request:", request)
         console.log('body',request.body);
+        return "ok";
     }
 
     @Delete(':id')

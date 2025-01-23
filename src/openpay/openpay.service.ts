@@ -66,4 +66,17 @@ export class OpenpayService {
       });
     }
 
+    async getAllWebHooks(): Promise<any> {
+      return new Promise((resolve, reject) => {
+        this.openpay.webhooks.list(function(error, list){
+          if (error) {
+            console.error('Error al obtener webhooks', error);
+            return reject(error);
+          }
+          console.log('Webhooks:', list);
+          resolve(list)
+        })
+      });
+    }
+
 }

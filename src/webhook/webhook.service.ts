@@ -19,8 +19,8 @@ export class WebhookService {
                 'charge.created',
                 'charge.refunded',
                 'charge.failed',
+                'charge.succeeded',
                 'charge.cancelled',
-                'charge.created',
                 'chargeback.accepted',
                 'payout.created',
                 'payout.succeeded',
@@ -39,6 +39,12 @@ export class WebhookService {
     async deleteWebHook(webHookId: string) {
         const response = await this.openPayService.deleteWebHook(webHookId);
         console.log("🚀 ~ WebhookService ~ deleteWebHook ~ response:", response)
+        return response;
+    }
+
+    async getAllWebHooks() {
+        const response = await this.openPayService.getAllWebHooks();
+        console.log("🚀 ~ WebhookService ~ getAllWebHooks ~ response:", response)
         return response;
     }
     
